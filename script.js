@@ -1,5 +1,3 @@
-/* Edit this file */
-
 const player = document.querySelector('.player');
 const video = player.querySelector('.viewer');
 const progress = player.querySelector('.progress');
@@ -25,25 +23,40 @@ toggle.addEventListener('click', togglePlay);
 video.addEventListener('play', updateButton);
 video.addEventListener('pause', updateButton);
 
+
 function handleProgress() {
+  if (!video.duration || isNaN(video.duration)) {
+    return;
+  }
+
   const percent = (video.currentTime / video.duration) * 100;
 
+  progressBar.style.width = `${percent}%`;
   progressBar.style.flexBasis = `${percent}%`;
 }
 
 video.addEventListener('timeupdate', handleProgress);
 
+
 function handleRangeUpdate() {
-  video[this.name] = this.value;
+  const value = Number(this.value);
+
+  if (this.name === 'volume') {
+    video.volume = value;
+  }
+
+  if (this.name === 'playbackRate') {
+    video.playbackRate = value;
+  }
 }
 
 ranges.forEach(range => {
+  range.addEventListener('input', handleRangeUpdate);
   range.addEventListener('change', handleRangeUpdate);
-  range.addEventListener('mousemove', handleRangeUpdate);
 });
 
 function skip() {
-  video.currentTime += parseFloat(this.dataset.skip);
+  video.currentTime += Number(this.dataset.skip);
 }
 
 skipButtons.forEach(button => {
@@ -51,7 +64,12 @@ skipButtons.forEach(button => {
 });
 
 
+
 function scrub(e) {
+  if (!video.duration) {
+    return;
+  }
+
   const scrubTime =
     (e.offsetX / progress.offsetWidth) * video.duration;
 
@@ -59,6 +77,7 @@ function scrub(e) {
 }
 
 progress.addEventListener('click', scrub);
+
 
 video.addEventListener('error', () => {
   console.error('Unable to load download.mp4');
