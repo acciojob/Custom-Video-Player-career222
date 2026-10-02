@@ -6,7 +6,11 @@ const toggle = player.querySelector('.toggle');
 const skipButtons = player.querySelectorAll('[data-skip]');
 const ranges = player.querySelectorAll('.player__slider');
 
-// Play / Pause
+
+// ==========================
+// PLAY / PAUSE
+// ==========================
+
 function togglePlay() {
   if (video.paused) {
     video.play();
@@ -15,57 +19,50 @@ function togglePlay() {
   }
 }
 
-// Update Play/Pause Button
 function updateButton() {
   toggle.textContent = video.paused ? '►' : '❚❚';
 }
 
-// Play/Pause button click
 toggle.addEventListener('click', togglePlay);
 
-// Update button when video plays/pauses
 video.addEventListener('play', updateButton);
 video.addEventListener('pause', updateButton);
 
 
-// Progress Bar
-function handleProgress() {
-  if (!video.duration || isNaN(video.duration)) {
-    return;
-  }
+// ==========================
+// PROGRESS BAR
+// ==========================
 
+function handleProgress() {
   const percent = (video.currentTime / video.duration) * 100;
 
-  progressBar.style.width = `${percent}%`;
+  progressBar.style.width = percent + '%';
+  progressBar.style.flexBasis = percent + '%';
 }
 
-// Update progress bar while video is playing
 video.addEventListener('timeupdate', handleProgress);
 
 
-// Volume / Playback Speed
+// ==========================
+// VOLUME / PLAYBACK SPEED
+// ==========================
+
 function handleRangeUpdate() {
-  const value = Number(this.value);
-
-  if (this.name === 'volume') {
-    video.volume = value;
-  }
-
-  if (this.name === 'playbackRate') {
-    video.playbackRate = value;
-  }
+  video[this.name] = this.value;
 }
 
-// Range input events
 ranges.forEach(range => {
-  range.addEventListener('input', handleRangeUpdate);
   range.addEventListener('change', handleRangeUpdate);
+  range.addEventListener('mousemove', handleRangeUpdate);
 });
 
 
-// Skip buttons
+// ==========================
+// SKIP
+// ==========================
+
 function skip() {
-  video.currentTime += Number(this.dataset.skip);
+  video.currentTime += parseFloat(this.dataset.skip);
 }
 
 skipButtons.forEach(button => {
@@ -73,12 +70,11 @@ skipButtons.forEach(button => {
 });
 
 
-// Click on progress bar to seek
-function scrub(e) {
-  if (!video.duration) {
-    return;
-  }
+// ==========================
+// SCRUB / SEEK
+// ==========================
 
+function scrub(e) {
   const scrubTime =
     (e.offsetX / progress.offsetWidth) * video.duration;
 
@@ -86,9 +82,3 @@ function scrub(e) {
 }
 
 progress.addEventListener('click', scrub);
-
-
-// Video error
-video.addEventListener('error', () => {
-  console.error('Unable to load download.mp4');
-});
